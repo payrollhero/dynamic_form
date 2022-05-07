@@ -1,5 +1,6 @@
 require 'test_helper'
-require 'action_view/template/handlers/erb'
+# warning: loading in progress, circular require considered harmful
+#require 'action_view/template/handlers/erb'
 
 class DynamicFormTest < ActionView::TestCase
   tests ActionView::Helpers::DynamicForm
