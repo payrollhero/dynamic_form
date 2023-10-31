@@ -87,6 +87,10 @@ module ActionView
         contents.safe_concat('</form>')
       end
 
+      def convert_to_model(object)
+        object.respond_to?(:to_model) ? object.to_model : object
+      end
+
       # Returns a string containing the error message attached to the +method+ on the +object+ if one exists.
       # This error message is wrapped in a <tt>DIV</tt> tag by default or with <tt>:html_tag</tt> if specified,
       # which can be extended to include a <tt>:prepend_text</tt> and/or <tt>:append_text</tt> (to properly explain
