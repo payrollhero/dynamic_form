@@ -16,6 +16,7 @@ module ActionView
       #   input("post", "title")
       #   # => <input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />
       def input(record_name, method, options = {})
+        raise 'this is dead code, do not use.'
         InstanceTag.new(record_name, method, self).to_tag(options)
       end
 
@@ -79,6 +80,7 @@ module ActionView
 
         submit_value = options[:submit_value] || options[:action].gsub(/[^\w]/, '').capitalize
 
+        raise "unsupported code, do not use!"
         contents = form_tag({:action => action}, :method =>(options[:method] || 'post'), :enctype => options[:multipart] ? 'multipart/form-data': nil)
         contents.safe_concat hidden_field(record_name, :id) if record.persisted?
         contents.safe_concat all_input_tags(record, record_name, options)
