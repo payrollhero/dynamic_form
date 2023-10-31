@@ -379,8 +379,9 @@ class DynamicFormTest < ActionView::TestCase
       concat f.error_messages
     end
 
+    autocomplete = ActionView.version >= '6.1.0' ? ' autocomplete="off"' : ''
     expected = %(<form accept-charset="UTF-8" class="new_post" method="post" action="" id="new_post">) +
-               %(<input name="utf8" type="hidden" value="&#x2713;" autocomplete="off" />) +
+               %(<input name="utf8" type="hidden" value="&#x2713;"#{autocomplete} />) +
                %(<div class="formError">can't be empty</div>) +
                %(<div class="errorExplanation" id="errorExplanation"><h2>1 error prohibited this post from being saved</h2><p>There were problems with the following fields:</p><ul><li>Author name can't be empty</li></ul></div>) +
                %(</form>)
