@@ -3,6 +3,7 @@ Gem::Specification.new do |s|
   s.version = "1.2.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
+  s.required_ruby_version = "> 2.7.0", "< 3.3"
   s.authors = ["Joel Moss"]
   s.date = %q{2010-09-05}
   s.description = %q{DynamicForm holds a few helper methods to help you deal with your Rails3 models. It includes the stripped out methods from Rails 2; error_message_on and error_messages_for. It also brings in the functionality of the custom-err-messages plugin, which provides more flexibility over your model error messages.}
@@ -40,6 +41,7 @@ Gem::Specification.new do |s|
      "test/test_helper.rb"
   ]
 
+  s.add_development_dependency(%q<byebug>, [">= 0"])
   s.add_development_dependency(%q<mocha>, [">= 0"])
   s.add_development_dependency(%q<test-unit>, [">= 0"])
   s.add_development_dependency(%q<test-unit-rails>, [">= 0"])
