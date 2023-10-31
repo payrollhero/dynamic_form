@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'test/unit'
-#require 'test/unit/rails/test_help'
 require 'test/unit/active_support'
 require "test/unit/notify"
 require 'mocha/test_unit'
