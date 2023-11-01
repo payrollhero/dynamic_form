@@ -2,6 +2,7 @@ require 'action_view/helpers'
 require 'active_support/i18n'
 require 'active_support/core_ext/enumerable'
 require 'active_support/core_ext/object/blank'
+class BrokenFeatureError < RuntimeError; end
 
 module ActionView
   module Helpers
@@ -16,6 +17,7 @@ module ActionView
       #   input("post", "title")
       #   # => <input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />
       def input(record_name, method, options = {})
+        raise_broken_code_error
         InstanceTag.new(record_name, method, self).to_tag(options)
       end
 
@@ -79,12 +81,17 @@ module ActionView
 
         submit_value = options[:submit_value] || options[:action].gsub(/[^\w]/, '').capitalize
 
+        raise_broken_code_error
         contents = form_tag({:action => action}, :method =>(options[:method] || 'post'), :enctype => options[:multipart] ? 'multipart/form-data': nil)
         contents.safe_concat hidden_field(record_name, :id) if record.persisted?
         contents.safe_concat all_input_tags(record, record_name, options)
         yield contents if block_given?
         contents.safe_concat submit_tag(submit_value)
         contents.safe_concat('</form>')
+      end
+
+      def convert_to_model(object)
+        object.respond_to?(:to_model) ? object.to_model : object
       end
 
       # Returns a string containing the error message attached to the +method+ on the +object+ if one exists.
@@ -240,6 +247,11 @@ module ActionView
       end
 
     private
+
+      def raise_broken_code_error
+        raise BrokenFeatureError,
+          "This feature is currently broken, please open a pull request at https://github.com/payrollhero/dynamic_form to have it reviewed and released."
+      end
 
       def all_input_tags(record, record_name, options)
         input_block = options[:input_block] || default_input_block
