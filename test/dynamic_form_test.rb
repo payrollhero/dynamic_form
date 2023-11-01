@@ -130,11 +130,11 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_generic_input_tag
-    return true # unsupported
-
+    assert_raise(BrokenFeatureError) do
     assert_dom_equal(
       %(<input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />), input("post", "title")
     )
+    end
   end
 
   def test_text_area_with_errors
@@ -169,8 +169,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_string
-    return true # unsupported
+    assert_raise(BrokenFeatureError) do
+      inner_test_form_with_string
+    end
+  end
 
+  def inner_test_form_with_string
     assert_dom_equal(
       %(<form accept-charset="UTF-8" action="create" method="post"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><p><label for="post_title">Title</label><br /><input id="post_title" name="post[title]" size="30" type="text" value="Hello World" /></p>\n<p><label for="post_body">Body</label><br /><div class="field_with_errors"><textarea cols="40" id="post_body" name="post[body]" rows="20">Back to the hill and over it again!</textarea></div></p><input name="commit" type="submit" value="Create" /></form>),
       form("post")
@@ -191,8 +195,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_protect_against_forgery
-    return true # unsupported
+    assert_raise(BrokenFeatureError) do
+      inner_test_form_with_protect_against_forgery
+    end
+  end
 
+  def inner_test_form_with_protect_against_forgery
     @protect_against_forgery = true
     @request_forgery_protection_token = 'authenticity_token'
     @form_authenticity_token = '123'
@@ -203,8 +211,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_method_option
-    return true # unsupported
+    assert_raise(BrokenFeatureError) do
+      inner_test_form_with_method_option
+    end
+  end
 
+  def inner_test_form_with_method_option
     assert_dom_equal(
       %(<form accept-charset="UTF-8" action="create" method="get"><div style="margin:0;padding:0;display:inline"><input name="utf8" type="hidden" value="&#x2713;" /></div><p><label for="post_title">Title</label><br /><input id="post_title" name="post[title]" size="30" type="text" value="Hello World" /></p>\n<p><label for="post_body">Body</label><br /><div class="field_with_errors"><textarea cols="40" id="post_body" name="post[body]" rows="20">Back to the hill and over it again!</textarea></div></p><input name="commit" type="submit" value="Create" /></form>),
       form("post", :method=>'get')
@@ -212,17 +224,21 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_action_option
-    return true # unsupported
-
+    assert_raise(BrokenFeatureError) do
     output_buffer << form("post", :action => "sign")
     assert_select "form[action=sign]" do |form|
       assert_select "input[type=submit][value=Sign]"
     end
+    end
   end
 
   def test_form_with_date
-    return true # unsupported
+    assert_raise(BrokenFeatureError) do
+      inner_test_form_with_date
+    end
+  end
 
+  def inner_test_form_with_date
     silence_warnings do
       def Post.content_columns() [ Column.new(:date, "written_on", "Written on") ] end
     end
@@ -234,8 +250,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_datetime
-    return true # unsupported
+    assert_raise(BrokenFeatureError) do
+      inner_test_form_with_datetime
+    end
+  end
 
+  def inner_test_form_with_datetime
     silence_warnings do
       def Post.content_columns() [ Column.new(:datetime, "written_on", "Written on") ] end
     end
@@ -347,12 +367,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_form_with_string_multipart
-    return true # unsupported
-
+    assert_raise(BrokenFeatureError) do
     assert_dom_equal(
       %(<form accept-charset="UTF-8" action="create" enctype="multipart/form-data" method="post"><input name="utf8" type="hidden" value="&#x2713;" autocomplete="off" /><p><label for="post_title">Title</label><br /><input id="post_title" name="post[title]" size="30" type="text" value="Hello World" /></p>\n<p><label for="post_body">Body</label><br /><div class="field_with_errors"><textarea cols="40" id="post_body" name="post[body]" rows="20">Back to the hill and over it again!</textarea></div></p><input name="commit" type="submit" value="Create" /></form>),
       form("post", :multipart => true)
     )
+    end
   end
 
   def test_default_form_builder_with_dynamic_form_helpers
