@@ -11,14 +11,18 @@ module ActionView
     # is a great way of making the record quickly available for editing, but likely to prove lackluster for a complicated real-world form.
     # In that case, it's better to use the +input+ method and the specialized +form+ methods in link:classes/ActionView/Helpers/FormHelper.html
     module DynamicForm
+      DEFAULT_FIELD_OPTION_MAXLENGTH = 30
       # Returns a default input tag for the type of object returned by the method. For example, if <tt>@post</tt>
       # has an attribute +title+ mapped to a +VARCHAR+ column that holds "Hello World":
       #
       #   input("post", "title")
-      #   # => <input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />
-      def input(record_name, method, options = {})
-        raise_broken_code_error
-        InstanceTag.new(record_name, method, self).to_tag(options)
+      #   # => <input id="post_title" name="post[title]" size="30" maxlength="30" type="text" value="Hello World" />
+      #
+      #   input("post", "title", "maxlength" => 10)
+      #   # => <input id="post_title" name="post[title]" size="10" maxlength="10" type="text" value="Hello World" />
+      def input(object_name, method, options = {})
+        options["maxlength"] = DEFAULT_FIELD_OPTION_MAXLENGTH unless options.key?("maxlength")
+        Tags::TextField.new(object_name, method, self, options).render
       end
 
       # Returns an entire form with all needed input tags for a specified Active Record object. For example, if <tt>@post</tt>
@@ -262,32 +266,6 @@ module ActionView
         Proc.new { |record, column| %(<p><label for="#{record}_#{column.name}">#{column.human_name}</label><br />#{input(record, column.name)}</p>) }
       end
 
-      module InstanceTagMethods
-        def to_tag(options = {})
-          case column_type
-            when :string
-              field_type = @method_name.include?("password") ? "password" : "text"
-              to_input_field_tag(field_type, options)
-            when :text
-              to_text_area_tag(options)
-            when :integer, :float, :decimal
-              to_input_field_tag("text", options)
-            when :date
-              to_date_select_tag(options)
-            when :datetime, :timestamp
-              to_datetime_select_tag(options)
-            when :time
-              to_time_select_tag(options)
-            when :boolean
-              to_boolean_select_tag(options).html_safe
-          end
-        end
-
-        def column_type
-          object.send(:column_for_attribute, @method_name).type
-        end
-      end
-
       module FormBuilderMethods
         def error_message_on(method, *args)
           @template.error_message_on(@object || @object_name, method, *args)
@@ -297,10 +275,6 @@ module ActionView
           @template.error_messages_for(@object_name, objectify_options(options))
         end
       end
-    end
-
-    class InstanceTag
-      include DynamicForm::InstanceTagMethods
     end
 
     class FormBuilder

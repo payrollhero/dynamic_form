@@ -130,11 +130,15 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_generic_input_tag
-    assert_raise(BrokenFeatureError) do
     assert_dom_equal(
-      %(<input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />), input("post", "title")
+      %(<input id="post_title" name="post[title]" maxlength="30" size="30" type="text" value="Hello World" />), input("post", "title")
     )
-    end
+  end
+
+  def test_input_tag_with_maxlength
+    assert_dom_equal(
+      %(<input id="post_title" name="post[title]" maxlength="10" size="10" type="text" value="Hello World" />), input("post", "title", "maxlength" => 10)
+    )
   end
 
   def test_text_area_with_errors
@@ -225,10 +229,10 @@ class DynamicFormTest < ActionView::TestCase
 
   def test_form_with_action_option
     assert_raise(BrokenFeatureError) do
-    output_buffer << form("post", :action => "sign")
-    assert_select "form[action=sign]" do |form|
-      assert_select "input[type=submit][value=Sign]"
-    end
+      output_buffer << form("post", :action => "sign")
+      assert_select "form[action=sign]" do |form|
+        assert_select "input[type=submit][value=Sign]"
+      end
     end
   end
 
