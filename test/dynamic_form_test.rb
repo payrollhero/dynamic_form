@@ -195,7 +195,7 @@ class DynamicFormTest < ActionView::TestCase
 
   def test_input_tag_for_boolean
     assert_dom_equal(
-      %(<input name="post[published]" type="hidden" value="0" autocomplete="off" /><input maxlength="30" type="checkbox" value="1" checked="checked" name="post[published]" id="post_published" />), input("post", "published")
+      %(<input name="post[published]" type="hidden" value="0" autocomplete="off" /><input type="checkbox" value="1" checked="checked" name="post[published]" id="post_published" />), input("post", "published")
     )
   end
 

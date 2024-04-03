@@ -291,7 +291,7 @@ module ActionView
           when :time
             Tags::TimeField.new(*generic_args).render
           when :boolean
-            Tags::CheckBox.new(@object_name, @method, @context, "1", "0", options_with_default).render
+            Tags::CheckBox.new(@object_name, @method, @context, "1", "0", @options).render
           end
         end
 
