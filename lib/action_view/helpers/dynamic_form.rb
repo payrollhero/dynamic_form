@@ -11,7 +11,6 @@ module ActionView
     # is a great way of making the record quickly available for editing, but likely to prove lackluster for a complicated real-world form.
     # In that case, it's better to use the +input+ method and the specialized +form+ methods in link:classes/ActionView/Helpers/FormHelper.html
     module DynamicForm
-      DEFAULT_FIELD_OPTION_MAXLENGTH = 30
       # Returns a default input tag for the type of object returned by the method. For example, if <tt>@post</tt>
       # has an attribute +title+ mapped to a +VARCHAR+ column that holds "Hello World":
       #
@@ -21,8 +20,7 @@ module ActionView
       #   input("post", "title", "maxlength" => 10)
       #   # => <input id="post_title" name="post[title]" size="10" maxlength="10" type="text" value="Hello World" />
       def input(object_name, method, options = {})
-        options["maxlength"] = DEFAULT_FIELD_OPTION_MAXLENGTH unless options.key?("maxlength")
-        Tags::TextField.new(object_name, method, self, options).render
+        InputBuilder.new(object_name, method, self, options).to_tag
       end
 
       # Returns an entire form with all needed input tags for a specified Active Record object. For example, if <tt>@post</tt>
@@ -266,6 +264,58 @@ module ActionView
         Proc.new { |record, column| %(<p><label for="#{record}_#{column.name}">#{column.human_name}</label><br />#{input(record, column.name)}</p>) }
       end
 
+
+      module InputBuilderMethods
+        DEFAULT_MAXLENGTH = 30
+
+        def initialize(object_name, method, context, options)
+          @object_name = object_name
+          @context = context
+          @method = method
+          @options = options
+        end
+
+        def to_tag
+          case column_type
+          when :string
+            @options["type"] = @method.include?("password") ? "password" : "text"
+            Tags::TextField.new(*generic_args).render
+          when :text
+            Tags::TextArea.new(*generic_args).render
+          when :integer, :float, :decimal
+            Tags::TextField.new(*generic_args).render
+          when :date
+            Tags::DateField.new(*generic_args).render
+          when :datetime, :timestamp
+            Tags::DatetimeLocalField.new(*generic_args).render
+          when :time
+            Tags::TimeField.new(*generic_args).render
+          when :boolean
+            Tags::CheckBox.new(@object_name, @method, @context, "1", "0", options_with_default).render
+          end
+        end
+
+        private
+
+        def options_with_default
+          @options.tap do |options|
+            options["maxlength"] = DEFAULT_MAXLENGTH unless @options.key?("maxlength")
+          end
+        end
+
+        def generic_args
+          [ @object_name, @method, @context, options_with_default ]
+        end
+
+        def object
+          @context.instance_variable_get("@#{@object_name}")
+        end
+
+        def column_type
+          object.send(:column_for_attribute, @method).type
+        end
+      end
+
       module FormBuilderMethods
         def error_message_on(method, *args)
           @template.error_message_on(@object || @object_name, method, *args)
@@ -275,6 +325,10 @@ module ActionView
           @template.error_messages_for(@object_name, objectify_options(options))
         end
       end
+    end
+
+    class InputBuilder
+      include DynamicForm::InputBuilderMethods
     end
 
     class FormBuilder
