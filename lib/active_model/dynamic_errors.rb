@@ -14,21 +14,23 @@ module ActiveModel
       full_messages = []
 
       each do |error|
-        if error.attribute == :base
-          full_messages << error.message
-        else
-          attr_name = error.attribute.to_s.gsub('.', '_').humanize
-          attr_name = @base.class.human_attribute_name(error.attribute, :default => attr_name)
-          options = { :default => "%{attribute} %{message}", :attribute => attr_name }
-
-          if error.message =~ /^\^/
-            options[:default] = "%{message}"
-            full_messages << I18n.t(:"errors.dynamic_format", **options.merge(:message => error.message[1..-1]))
-          elsif error.message.is_a? Proc
-            options[:default] = "%{message}"
-            full_messages << I18n.t(:"errors.dynamic_format", **options.merge(:message => error.message.call(@base)))
+        Array.wrap(error.message).each do |error_message|
+          if error.attribute == :base
+            full_messages << error_message
           else
-            full_messages << I18n.t(:"errors.format", **options.merge(:message => error.message))
+            attr_name = error.attribute.to_s.gsub('.', '_').humanize
+            attr_name = @base.class.human_attribute_name(error.attribute, :default => attr_name)
+            options = { :default => "%{attribute} %{message}", :attribute => attr_name }
+
+            if error_message =~ /^\^/
+              options[:default] = "%{message}"
+              full_messages << I18n.t(:"errors.dynamic_format", **options.merge(:message => error_message[1..-1]))
+            elsif error_message.is_a? Proc
+              options[:default] = "%{message}"
+              full_messages << I18n.t(:"errors.dynamic_format", **options.merge(:message => error_message.call(@base)))
+            else
+              full_messages << I18n.t(:"errors.format", **options.merge(:message => error_message))
+            end
           end
         end
       end
