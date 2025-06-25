@@ -1,3 +1,4 @@
+require 'logger'
 require 'rubygems'
 require 'test/unit'
 require 'test/unit/active_support'

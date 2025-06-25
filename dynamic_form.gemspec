@@ -45,8 +45,12 @@ Gem::Specification.new do |s|
 
   s.add_runtime_dependency 'actionview', '> 5.2.0'
   s.add_runtime_dependency 'activemodel', '> 5.2.0'
+  s.add_development_dependency(%q<benchmark>, [">= 0"])
+  s.add_development_dependency(%q<bigdecimal>, [">= 0"])
   s.add_development_dependency(%q<byebug>, [">= 0"])
+  s.add_development_dependency(%q<logger>, [">= 0"])
   s.add_development_dependency(%q<mocha>, [">= 0"])
+  s.add_development_dependency(%q<mutex_m>, [">= 0"])
   s.add_development_dependency(%q<test-unit>, [">= 0"])
   s.add_development_dependency(%q<test-unit-rails>, [">= 0"])
   s.add_development_dependency(%q<test-unit-full>, [">= 0"])
