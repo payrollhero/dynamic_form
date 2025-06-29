@@ -10,12 +10,12 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   silence_warnings do
-    class Post < Struct.new(:title, :author_name, :body, :secret, :written_on)
+    class Post < Struct.new(:title, :author_name, :body, :secret, :written_on, :published_on, :started_at, :published)
       extend ActiveModel::Naming
       include ActiveModel::Conversion
     end
 
-    class User < Struct.new(:email)
+    class User < Struct.new(:email, :password)
       extend ActiveModel::Naming
       include ActiveModel::Conversion
     end
@@ -78,14 +78,27 @@ class DynamicFormTest < ActionView::TestCase
     end
 
     silence_warnings do
-      def Post.content_columns() [ Column.new(:string, "title", "Title"), Column.new(:text, "body", "Body") ] end
+      def Post.content_columns()
+        [
+          Column.new(:string, "title", "Title"),
+          Column.new(:text, "body", "Body"),
+          Column.new(:integer, "secret", "Secret"),
+          Column.new(:date, "written_on", "Written On"),
+          Column.new(:datetime, "published_on", "Published On"),
+          Column.new(:time, "started_at", "Started At"),
+          Column.new(:boolean, "published", "Published")
+        ]
+      end
     end
 
-    @post.title       = "Hello World"
-    @post.author_name = ""
-    @post.body        = "Back to the hill and over it again!"
-    @post.secret = 1
-    @post.written_on  = Date.new(2004, 6, 15)
+    @post.title         = "Hello World"
+    @post.author_name   = ""
+    @post.body          = "Back to the hill and over it again!"
+    @post.secret        = 1
+    @post.written_on    = Date.new(2004, 6, 15)
+    @post.published_on  = Date.new(2005, 8, 23)
+    @post.started_at    = Time.new(2024, 4, 2, 21, 44, 10)
+    @post.published     = true
   end
 
   def setup_user
@@ -107,10 +120,11 @@ class DynamicFormTest < ActionView::TestCase
     end
 
     silence_warnings do
-      def User.content_columns() [ Column.new(:string, "email", "Email") ] end
+      def User.content_columns() [ Column.new(:string, "email", "Email"), Column.new(:string, "password", "Password") ] end
     end
 
     @user.email = ""
+    @user.password = "password"
   end
 
   def protect_against_forgery?
@@ -130,11 +144,59 @@ class DynamicFormTest < ActionView::TestCase
   end
 
   def test_generic_input_tag
-    assert_raise(BrokenFeatureError) do
     assert_dom_equal(
-      %(<input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />), input("post", "title")
+      %(<input id="post_title" name="post[title]" maxlength="30" size="30" type="text" value="Hello World" />), input("post", "title")
     )
-    end
+  end
+
+  def test_input_tag_with_maxlength
+    assert_dom_equal(
+      %(<input id="post_title" name="post[title]" maxlength="10" size="10" type="text" value="Hello World" />), input("post", "title", "maxlength" => 10)
+    )
+  end
+
+  def test_input_for_password
+    assert_dom_equal(
+      %(<input maxlength="30" type="password" size="30" value="password" name="user[password]" id="user_password" />), input("user", "password")
+    )
+  end
+
+  def test_input_for_text
+    def @post.errors; end
+
+    assert_dom_equal(
+      %(<textarea maxlength="30" name="post[body]" id="post_body">Back to the hill and over it again!</textarea>), input("post", "body")
+    )
+  end
+
+  def test_input_tag_for_integer
+    assert_dom_equal(
+      %(<input maxlength="30" size="30" type="text" value="1" name="post[secret]" id="post_secret" />), input("post", "secret")
+    )
+  end
+
+  def test_input_tag_for_date
+    assert_dom_equal(
+      %(<input maxlength="30" value="2004-06-15" size="30" type="date" name="post[written_on]" id="post_written_on" />), input("post", "written_on")
+    )
+  end
+
+  def test_input_tag_for_datetime
+    assert_dom_equal(
+      %(<input maxlength="30" value="2005-08-23T00:00:00" size="30" type="datetime-local" name="post[published_on]" id="post_published_on" />), input("post", "published_on")
+    )
+  end
+
+  def test_input_tag_for_time
+    assert_dom_equal(
+      %(<input maxlength="30" value="21:44:10.000" size="30" type="time" name="post[started_at]" id="post_started_at" />), input("post", "started_at")
+    )
+  end
+
+  def test_input_tag_for_boolean
+    assert_dom_equal(
+      %(<input name="post[published]" type="hidden" value="0" autocomplete="off" /><input type="checkbox" value="1" checked="checked" name="post[published]" id="post_published" />), input("post", "published")
+    )
   end
 
   def test_text_area_with_errors
@@ -225,10 +287,10 @@ class DynamicFormTest < ActionView::TestCase
 
   def test_form_with_action_option
     assert_raise(BrokenFeatureError) do
-    output_buffer << form("post", :action => "sign")
-    assert_select "form[action=sign]" do |form|
-      assert_select "input[type=submit][value=Sign]"
-    end
+      output_buffer << form("post", :action => "sign")
+      assert_select "form[action=sign]" do |form|
+        assert_select "input[type=submit][value=Sign]"
+      end
     end
   end
 

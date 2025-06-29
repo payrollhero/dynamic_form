@@ -15,10 +15,12 @@ module ActionView
       # has an attribute +title+ mapped to a +VARCHAR+ column that holds "Hello World":
       #
       #   input("post", "title")
-      #   # => <input id="post_title" name="post[title]" size="30" type="text" value="Hello World" />
-      def input(record_name, method, options = {})
-        raise_broken_code_error
-        InstanceTag.new(record_name, method, self).to_tag(options)
+      #   # => <input id="post_title" name="post[title]" size="30" maxlength="30" type="text" value="Hello World" />
+      #
+      #   input("post", "title", "maxlength" => 10)
+      #   # => <input id="post_title" name="post[title]" size="10" maxlength="10" type="text" value="Hello World" />
+      def input(object_name, method, options = {})
+        InputBuilder.new(object_name, method, self, options).to_tag
       end
 
       # Returns an entire form with all needed input tags for a specified Active Record object. For example, if <tt>@post</tt>
@@ -262,29 +264,55 @@ module ActionView
         Proc.new { |record, column| %(<p><label for="#{record}_#{column.name}">#{column.human_name}</label><br />#{input(record, column.name)}</p>) }
       end
 
-      module InstanceTagMethods
-        def to_tag(options = {})
+
+      module InputBuilderMethods
+        DEFAULT_MAXLENGTH = 30
+
+        def initialize(object_name, method, context, options)
+          @object_name = object_name
+          @context = context
+          @method = method
+          @options = options
+        end
+
+        def to_tag
           case column_type
-            when :string
-              field_type = @method_name.include?("password") ? "password" : "text"
-              to_input_field_tag(field_type, options)
-            when :text
-              to_text_area_tag(options)
-            when :integer, :float, :decimal
-              to_input_field_tag("text", options)
-            when :date
-              to_date_select_tag(options)
-            when :datetime, :timestamp
-              to_datetime_select_tag(options)
-            when :time
-              to_time_select_tag(options)
-            when :boolean
-              to_boolean_select_tag(options).html_safe
+          when :string
+            @options["type"] = @method.include?("password") ? "password" : "text"
+            Tags::TextField.new(*generic_args).render
+          when :text
+            Tags::TextArea.new(*generic_args).render
+          when :integer, :float, :decimal
+            Tags::TextField.new(*generic_args).render
+          when :date
+            Tags::DateField.new(*generic_args).render
+          when :datetime, :timestamp
+            Tags::DatetimeLocalField.new(*generic_args).render
+          when :time
+            Tags::TimeField.new(*generic_args).render
+          when :boolean
+            Tags::CheckBox.new(@object_name, @method, @context, "1", "0", @options).render
           end
         end
 
+        private
+
+        def options_with_default
+          @options.tap do |options|
+            options["maxlength"] = DEFAULT_MAXLENGTH unless @options.key?("maxlength")
+          end
+        end
+
+        def generic_args
+          [ @object_name, @method, @context, options_with_default ]
+        end
+
+        def object
+          @context.instance_variable_get("@#{@object_name}")
+        end
+
         def column_type
-          object.send(:column_for_attribute, @method_name).type
+          object.send(:column_for_attribute, @method).type
         end
       end
 
@@ -299,8 +327,8 @@ module ActionView
       end
     end
 
-    class InstanceTag
-      include DynamicForm::InstanceTagMethods
+    class InputBuilder
+      include DynamicForm::InputBuilderMethods
     end
 
     class FormBuilder
