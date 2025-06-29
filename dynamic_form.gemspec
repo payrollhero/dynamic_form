@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{dynamic_form}
-  s.version = "1.3.2"
+  s.version = "1.3.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.required_ruby_version = ">= 2.7.0", "< 3.5"
@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
      "MIT-LICENSE",
      "README.md",
      "Rakefile",
-     "VERSION",
      "dynamic_form.gemspec",
      "init.rb",
      "lib/action_view/helpers/dynamic_form.rb",
@@ -35,7 +34,7 @@ Gem::Specification.new do |s|
   s.homepage = %q{https://github.com/payrollhero/dynamic_form}
   s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.7}
+  s.rubygems_version = ">= 1.3.7"
   s.summary = %q{DynamicForm holds a few helper methods to help you deal with your Rails3 models}
   s.test_files = [
     "test/dynamic_form_i18n_test.rb",
