@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{dynamic_form}
-  s.version = "1.3.3"
+  s.version = "1.4.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.required_ruby_version = ">= 2.7.0", "< 3.5"
@@ -42,8 +42,8 @@ Gem::Specification.new do |s|
      "test/test_helper.rb"
   ]
 
-  s.add_runtime_dependency 'actionview', '> 5.2.0'
-  s.add_runtime_dependency 'activemodel', '> 5.2.0'
+  s.add_runtime_dependency 'actionview', '>= 6.0.0'
+  s.add_runtime_dependency 'activemodel', '>= 6.0.0'
   s.add_development_dependency(%q<benchmark>, [">= 0"])
   s.add_development_dependency(%q<bigdecimal>, [">= 0"])
   s.add_development_dependency(%q<byebug>, [">= 0"])
