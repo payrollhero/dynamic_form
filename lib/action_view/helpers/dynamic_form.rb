@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'action_view/helpers'
 require 'active_support/i18n'
 require 'active_support/core_ext/enumerable'
