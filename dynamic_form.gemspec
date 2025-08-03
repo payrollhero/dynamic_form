@@ -42,8 +42,8 @@ Gem::Specification.new do |s|
      "test/test_helper.rb"
   ]
 
-  s.add_runtime_dependency 'actionview', '> 5.2.0'
-  s.add_runtime_dependency 'activemodel', '> 5.2.0'
+  s.add_runtime_dependency 'actionview', '>= 6.0.0'
+  s.add_runtime_dependency 'activemodel', '>= 6.0.0'
   s.add_development_dependency(%q<benchmark>, [">= 0"])
   s.add_development_dependency(%q<bigdecimal>, [">= 0"])
   s.add_development_dependency(%q<byebug>, [">= 0"])
