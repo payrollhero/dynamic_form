@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'action_view/helpers'
 require 'active_support/i18n'
 require 'active_support/core_ext/enumerable'
@@ -234,12 +236,12 @@ module ActionView
               end
             end.inject(:+).join.html_safe
 
-            contents = ''
+            contents = ''.html_safe
             contents << content_tag(options[:header_tag] || :h2, header_message) unless header_message.blank?
             contents << content_tag(:p, message) unless message.blank?
             contents << content_tag(:ul, error_messages)
 
-            content_tag(:div, contents.html_safe, html)
+            content_tag(:div, contents, html)
           end
         else
           ''
